@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auraguard - AI Fraud Detection</title>
+    
+    <!-- Load React -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Load Babel for JSX Transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Load Framer Motion for Animations -->
+    <script src="https://unpkg.com/framer-motion@10/dist/framer-motion.umd.js"></script>
+    
+    <!-- Load TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Set base font style -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Tailwind's default sans-serif stack is good */
+            /* This style is applied by Tailwind, but we ensure it as a base */
+        }
+    </style>
+</head>
+<body class="bg-[#0a192f]">
+    
+    <!-- This is where the React App will be mounted -->
+    <div id="root">
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: sans-serif; font-size: 1.5rem; color: #9ca3af;">
+            Loading Auraguard AI...
+        </div>
+    </div>
+    
+    <!-- This is the entire React Application, written in JSX -->
+    <script type="text/babel">
+    
+        // Destructure React and Framer Motion globals
+        const { useState, useEffect, useRef, Fragment } = React;
+        const { motion, AnimatePresence, useMotionValue, useTransform, animate } = window.FramerMotion;
+
+        // --- SVG ICONS ---
+        // Using inline SVGs to keep it to a single file. Sourced from Lucide/Heroicons.
+
+        const ShieldCheck = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+        );
+
+        const Bell = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+        );
+
+        const User = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        );
+
+        const LayoutDashboard = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <rect width="7" height="9" x="3" y="3" rx="1" />
+            <rect width="7" height="5" x="14" y="3" rx="1" />
+            <rect width="7" height="9" x="14" y="12" rx="1" />
+            <rect width="7" height="5" x="3" y="16" rx="1" />
+          </svg>
+        );
+
+        const CreditCard = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <rect width="20" height="14" x="2" y="5" rx="2" />
+            <line x1="2" x2="22" y1="10" y2="10" />
+          </svg>
+        );
+
+        const BarChart3 = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M3 3v18h18" />
+            <path d="M7 12h4v8H7z" />
+            <path d="M12 8h4v12h-4z" />
+            <path d="M17 4h4v16h-4z" />
+          </svg>
+        );
+
+        const Smartphone = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+            <path d="M12 18h.01" />
+          </svg>
+        );
+
+        const Database = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <ellipse cx="12" cy="5" rx="9" ry="3" />
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+          </svg>
+        );
+
+        const AlertTriangle = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" x2="12" y1="9" y2="13" />
+            <line x1="12" x2="12.01" y1="17" y2="17" />
+          </svg>
+        );
+
+        const X = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <line x1="18" x2="6" y1="6" y2="18" />
+            <line x1="6" x2="18" y1="6" y2="18" />
+          </svg>
+        );
+
+        const CheckCircle = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        );
+
+        const Fingerprint = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4" />
+            <path d="M5 19.5A8.5 8.5 0 0 1 12 13a8.5 8.5 0 0 1 7 6.5" />
+            <path d="M12 13v1" />
+            <path d="M12 18v1.5" />
+            <path d="M8.5 16.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5z" />
+            <path d="M14.5 16.5a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-.5a.5.5 0 0 1-.5-.5z" />
+            <path d="M10 13a2 2 0 0 1 2-2h.5a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-.5a2 2 0 0 1-2-2z" />
+          </svg>
+        );
+
+        const Search = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" x2="16.65" y1="21" y2="16.65" />
+          </svg>
+        );
+
+        const Zap = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+        );
+
+        const Users = (props) => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        );
+
+
+        // --- MOCK DATA GENERATION ---
+
+        const MOCK_USERS = ['Alex Chen', 'Sarah Lynn', 'Kenji Tanaka', 'Maria Garcia', 'David Kim', 'Emily White', 'Chen Xiang', 'Raj Patel'];
+        const MOCK_MERCHANTS = ['Cybergoods Inc', 'NeoMart', 'VirtuaLife', 'Quantum PC', 'SynthFoods', 'DataFlow ISP', 'Holocorp', 'Netlink Secure'];
+        const MOCK_LOCATIONS = ['Neo Tokyo', 'San Francisco', 'London', 'Virtual Plaza', 'Mumbai', 'Berlin', 'Cyberspace', 'Lagos'];
+        const MOCK_DEVICES = ['Mobile', 'Desktop', 'Tablet', 'VR Rig', 'ATM'];
+        const MOCK_AVATARS = [
+          'https://placehold.co/40x40/7c3aed/ffffff?text=AC',
+          'https://placehold.co/40x40/db2777/ffffff?text=SL',
+          'https://placehold.co/40x40/16a34a/ffffff?text=KT',
+          'https://placehold.co/40x40/d97706/ffffff?text=MG',
+          'https://placehold.co/40x40/0284c7/ffffff?text=DK',
+          'https://placehold.co/40x40/1d4ed8/ffffff?text=EW',
+          'https://placehold.co/40x40/c026d3/ffffff?text=CX',
+          'https://placehold.co/40x40/059669/ffffff?text=RP',
+        ];
+
+        const generateMockTransaction = () => {
+          const userIdx = Math.floor(Math.random() * MOCK_USERS.length);
+          const isFraud = Math.random() < 0.1; // 10% chance of fraud
+          const riskScore = isFraud ? (Math.random() * 0.4 + 0.6) : (Math.random() * 0.5); // 0.6-1.0 for fraud, 0.0-0.5 for safe
+          
+          const factors = [
+            { name: 'Location Novelty', value: Math.random() },
+            { name: 'Device Anomaly', value: Math.random() },
+            { name: 'Transaction Velocity', value: Math.random() },
+            { name: 'Amount Spike', value: Math.random() },
+          ].sort((a, b) => b.value - a.value);
+
+          return {
+            id: `tx_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            user: MOCK_USERS[userIdx],
+            avatar: MOCK_AVATARS[userIdx],
+            amount: parseFloat((Math.random() * (isFraud ? 2000 : 500) + 10).toFixed(2)),
+            timestamp: new Date(),
+            merchant: MOCK_MERCHANTS[Math.floor(Math.random() * MOCK_MERCHANTS.length)],
+            location: MOCK_LOCATIONS[Math.floor(Math.random() * MOCK_LOCATIONS.length)],
+            device: MOCK_DEVICES[Math.floor(Math.random() * MOCK_DEVICES.length)],
+            riskScore: parseFloat(riskScore.toFixed(2)),
+            flagged: riskScore > 0.6,
+            status: riskScore > 0.6 ? (riskScore > 0.8 ? 'Fraud' : 'Suspicious') : 'Legit',
+            features: {
+              locationRisk: Math.random(),
+              deviceNovelty: Math.random(),
+              velocity: Math.random(),
+              userHistory: Math.random(),
+            },
+            explanation: factors.slice(0, 3).map(f => ({
+              feature: f.name,
+              importance: parseFloat(f.value.toFixed(2)),
+            })),
+          };
+        };
+
+        // --- HELPER FUNCTIONS ---
+
+        const formatCurrency = (amount) => {
+          return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        };
+
+        const getRiskColor = (score, type = 'text') => {
+          if (score > 0.6) {
+            return type === 'text' ? 'text-red-400' : (type === 'bg' ? 'bg-red-500/20' : 'border-red-500');
+          }
+          if (score > 0.3) {
+            return type === 'text' ? 'text-yellow-400' : (type === 'bg' ? 'bg-yellow-500/20' : 'border-yellow-500');
+          }
+          return type === 'text' ? 'text-green-400' : (type === 'bg' ? 'bg-green-500/20' : 'border-green-500');
+        };
+
+        // --- REUSABLE COMPONENTS ---
+
+        /**
+         * AnimatedCounter Component
+         * Rolls up or down to a target number.
+         */
+        const AnimatedCounter = ({ value, precision = 0 }) => {
+          const count = useMotionValue(value * 0.8); // Start from 80% of the value
+          const rounded = useTransform(count, (latest) => {
+            return parseFloat(latest.toFixed(precision)).toLocaleString();
+          });
+
+          useEffect(() => {
+            const animation = animate(count, value, {
+              duration: 1.5,
+              ease: "easeOut",
+            });
+            return animation.stop;
+          }, [value, count, precision]);
+
+          return <motion.span>{rounded}</motion.span>;
+        };
+
+        /**
+         * StatsCard Component
+         * A reusable card for the dashboard's quick stats.
+         */
+        const StatsCard = ({ icon, title, value, prefix = '', suffix = '' }) => {
+          return (
+            <motion.div
+              className="bg-gray-800/30 backdrop-blur-md border border-gray-700/50 rounded-lg p-5 shadow-lg shadow-cyan-900/10"
+              whileHover={{ y: -5, scale: 1.03, shadow: '0 10px 15px -3px rgba(6, 182, 212, 0.1), 0 4px 6px -2px rgba(6, 182, 212, 0.05)' }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <div className="flex items-center space-x-4">
+                <div className="p-3 rounded-full bg-cyan-500/10 text-cyan-400">
+                  {icon}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-400">{title}</p>
+                  <h3 className="text-3xl font-bold text-white">
+                    {prefix}<AnimatedCounter value={value} precision={title.includes('Amount') ? 2 : 0} />{suffix}
+                  </h3>
+                </div>
+              </div>
+            </motion.div>
+          );
+        };
+
+        /**
+         * RadialChart Component
+         * A simple SVG-based radial/donut chart.
+         */
+        const RadialChart = ({ percentage, colorClass }) => {
+          const radius = 52;
+          const circumference = 2 * Math.PI * radius;
+          const offset = circumference - (percentage / 100) * circumference;
+
+          return (
+            <div className="relative flex items-center justify-center w-40 h-40">
+              <svg className="w-full h-full" viewBox="0 0 120 120">
+                <circle
+                  className="text-gray-700/50"
+                  strokeWidth="10"
+                  stroke="currentColor"
+                  fill="transparent"
+                  r={radius}
+                  cx="60"
+                  cy="60"
+                />
+                <motion.circle
+                  className={colorClass}
+                  strokeWidth="10"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={offset}
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="transparent"
+                  r={radius}
+                  cx="60"
+                  cy="60"
+                  transform="rotate(-90 60 60)"
+                  initial={{ strokeDashoffset: circumference }}
+                  animate={{ strokeDashoffset: offset }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                />
+              </svg>
+              <motion.span 
+                className="absolute text-4xl font-bold text-white"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                {percentage}
+              </motion.span>
+            </div>
+          );
+        };
+
+        /**
+         * TransactionRow Component
+         * Renders a single transaction in the live feed.
+         */
+        const TransactionRow = ({ tx, onSelect }) => {
+          const [isNew, setIsNew] = useState(true);
+
+          useEffect(() => {
+            const timer = setTimeout(() => setIsNew(false), tx.flagged ? 2000 : 500); // Pulse longer for flagged
+            return () => clearTimeout(timer);
+          }, [tx.flagged]);
+
+          const riskColorClass = getRiskColor(tx.riskScore, 'text');
+          const riskBgClass = getRiskColor(tx.riskScore, 'bg');
+          const riskBorderClass = getRiskColor(tx.riskScore, 'border');
+
+          return (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+              onClick={() => onSelect(tx)}
+              className={`flex items-center p-4 mb-3 rounded-lg cursor-pointer transition-all duration-300
+                          bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 
+                          hover:bg-gray-700/50 hover:shadow-lg ${
+                            isNew && tx.flagged
+                              ? `animate-pulse border-2 ${riskBorderClass}`
+                              : 'border-gray-700/50'
+                          }`}
+            >
+              <img src={tx.avatar} alt={tx.user} className="w-10 h-10 rounded-full" />
+              <div className="ml-4 flex-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-white">{tx.user}</span>
+                  <span className={`font-bold text-lg ${riskColorClass}`}>{formatCurrency(tx.amount)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-400">
+                  <span>{tx.merchant}</span>
+                  <span>{tx.location}</span>
+                </div>
+              </div>
+              <div className={`ml-4 p-2 rounded-lg ${riskBgClass} ${riskColorClass} text-center`}>
+                <div className="font-bold text-lg">{(tx.riskScore * 100).toFixed(0)}</div>
+                <div className="text-xs font-medium uppercase">Risk</div>
+              </div>
+            </motion.div>
+          );
+        };
+
+        // --- PAGE COMPONENTS ---
+
+        /**
+         * Dashboard View
+         */
+        const Dashboard = ({ transactions, onSelectTransaction, stats }) => {
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="p-6 space-y-6"
+            >
+              {/* Hero Section & Stats */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Hero Panel */}
+                <div className="lg:col-span-1 bg-gray-800/30 backdrop-blur-md border border-gray-700/50 rounded-lg p-6 flex flex-col items-center justify-center shadow-lg shadow-cyan-900/10">
+                  <h2 className="text-2xl font-semibold text-white mb-4">Global Fraud Risk Index</h2>
+                  <RadialChart percentage={78} colorClass="text-red-500" />
+                  <p className="mt-4 text-center text-gray-400">
+                    Risk is <span className="font-bold text-red-400">High</span>. AI systems are on high alert.
+                  </p>
+                  <motion.button 
+                    className="mt-4 w-full text-center py-3 px-5 rounded-lg bg-cyan-500 text-white font-semibold shadow-lg shadow-cyan-500/30"
+                    whileHover={{ scale: 1.05, shadow: '0 0 20px rgba(6, 182, 212, 0.7)' }}
+                  >
+                    Review High-Risk Alerts
+                  </motion.button>
+                </div>
+
+                {/* Quick Stats Cards */}
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <StatsCard 
+                    icon={<AlertTriangle className="w-6 h-6" />}
+                    title="Suspicious Transactions (24h)"
+                    value={stats.suspiciousTx}
+                  />
+                  <StatsCard 
+                    icon={<CheckCircle className="w-6 h-6" />}
+                    title="Fraud Prevented (24h)"
+                    value={stats.fraudPrevented}
+                    prefix="$"
+                  />
+                  <StatsCard 
+                    icon={<Users className="w-6 h-6" />}
+                    title="Active Users Monitored"
+                    value={stats.activeUsers}
+                  />
+                  <StatsCard 
+                    icon={<Smartphone className="w-6 h-6" />}
+                    title="Devices Flagged Today"
+                    value={stats.devicesFlagged}
+                  />
+                </div>
+              </div>
+              
+              {/* Live Fraud Feed */}
+              <div className="bg-gray-800/30 backdrop-blur-md border border-gray-700/50 rounded-lg p-6 shadow-lg shadow-cyan-900/10">
+                <h2 className="text-2xl font-semibold text-white mb-4">Live Transaction Feed</h2>
+                <div className="h-[400px] lg:h-[500px] overflow-y-auto pr-2 space-y-3">
+                  <AnimatePresence>
+                    {transactions.map(tx => (
+                      <TransactionRow key={tx.id} tx={tx} onSelect={onSelectTransaction} />
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          );
+        };
+
+        /**
+         * Transactions View
+         */
+        const TransactionsView = ({ transactions, onSelectTransaction }) => {
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="p-6"
+            >
+              <div className="bg-gray-800/30 backdrop-blur-md border border-gray-700/50 rounded-lg shadow-lg shadow-cyan-900/10 overflow-hidden">
+                <div className="p-6 border-b border-gray-700/50">
+                  <h2 className="text-2xl font-semibold text-white">All Transactions</h2>
+                  <div className="mt-4 relative">
+                    <input 
+                      type="text"
+                      placeholder="Search by user, merchant, or amount..."
+                      className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-2 px-4 pl-10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-700/50">
+                    <thead className="bg-gray-900/30">
+                      <tr>
+                        <th className="py-3 px-6 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+                        <th className="py-3 px-6 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Amount</th>
+                        <th className="py-3 px-6 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Merchant</th>
+                        <th className="py-3 px-6 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Location</th>
+                        <th className="py-3 px-6 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Device</th>
+                        <th className="py-3 px-6 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                        <th className="py-3 px-6 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Risk Score</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-700/50">
+                      <AnimatePresence>
+                        {transactions.map(tx => (
+                          <motion.tr 
+                            key={tx.id}
+                            layout
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="hover:bg-gray-800/50 cursor-pointer"
+                            onClick={() => onSelectTransaction(tx)}
+                          >
+                            <td className="py-4 px-6 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <img src={tx.avatar} alt={tx.user} className="w-8 h-8 rounded-full" />
+                                <span className="ml-3 text-sm font-medium text-white">{tx.user}</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6 whitespace-nowrap text-sm text-white font-semibold">{formatCurrency(tx.amount)}</td>
+                            <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-300">{tx.merchant}</td>
+                            <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-300">{tx.location}</td>
+                            <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-300">{tx.device}</td>
+                            <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-300">{tx.timestamp.toLocaleTimeString()}</td>
+                            <td className="py-4 px-6 whitespace-nowrap">
+                              <span className={`px-3 py-1 rounded-full text-xs font-bold ${getRiskColor(tx.riskScore, 'bg')} ${getRiskColor(tx.riskScore, 'text')}`}>
+                                {(tx.riskScore * 100).toFixed(0)}
+                              </span>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </AnimatePresence>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          );
+        };
+
+        /**
+         * Analytics View (with mock charts)
+         */
+        const AnalyticsView = () => {
+          const heatmapData = Array.from({ length: 144 }, () => Math.random());
+          
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="p-6 space-y-6"
+            >
+              <h2 className="text-3xl font-semibold text-white">Analytics & Visualization</h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Mock Line Chart */}
+                <div className="bg-gray-800/30 backdrop-blur-md border border-gray-700/50 rounded-lg p-6 shadow-lg shadow-cyan-900/10">
+                  <h3 className="text-xl font-semibold text-white mb-4">Fraud Rate Over Time</h3>
+                  <div className="h-64 flex items-end justify-center">
+                    <svg className="w-full h-full" viewBox="0 0 300 150" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ef4444" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path 
+                        d="M0,120 C40,100 70,80 100,90 S150,130 200,100 S250,60 300,70"
+                        fill="url(#lineGradient)"
+                        stroke="#ef4444"
+                        strokeWidth="2"
+                      />
+                      <path 
+                        d="M0,140 C40,130 70,110 100,120 S150,140 200,130 S250,100 300,110"
+                        fill="none"
+                        stroke="#0ea5e9"
+                        strokeWidth="2"
+                      />
+                      {/* Grid lines */}
+                      <line x1="0" y1="50" x2="300" y2="50" stroke="#4b5563" strokeWidth="0.5" strokeDasharray="2" />
+                      <line x1="0" y1="100" x2="300" y2="100" stroke="#4b5563" strokeWidth="0.5" strokeDasharray="2" />
+                      <line x1="0" y1="150" x2="300" y2="150" stroke="#4b5563" strokeWidth="0.5" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Mock Pie Chart */}
+                <div className="bg-gray-800/30 backdrop-blur-md border border-gray-700/50 rounded-lg p-6 shadow-lg shadow-cyan-900/10 flex flex-col items-center">
+                  <h3 className="text-xl font-semibold text-white mb-4">Fraud Types Breakdown</h3>
+                  <div className="flex-1 flex items-center justify-center">
+                    <svg className="w-52 h-52" viewBox="0 0 120 120">
+                      <circle r="50" cx="60" cy="60" fill="transparent" stroke="#ef4444" strokeWidth="20" strokeDasharray="calc(65 * 314.16 / 100) 314.16" transform="rotate(-90 60 60)" />
+                      <circle r="50" cx="60" cy="60" fill="transparent" stroke="#f59e0b" strokeWidth="20" strokeDasharray="calc(25 * 314.16 / 100) 314.16" transform="rotate(144 60 60)" />
+                      <circle r="50" cx="60" cy="60" fill="transparent" stroke="#0ea5e9" strokeWidth="20" strokeDasharray="calc(10 * 314.16 / 100) 314.16" transform="rotate(234 60 60)" />
+                    </svg>
+                  </div>
+                  <div className="flex justify-center space-x-4 mt-4">
+                    <span className="text-sm text-gray-300"><span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>Velocity (65%)</span>
+                    <span className="text-sm text-gray-300"><span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>Device (25%)</span>
+                    <span className="text-sm text-gray-300"><span className="inline-block w-3 h-3 rounded-full bg-cyan-500 mr-2"></span>Location (10%)</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Mock Heatmap */}
+              <div className="bg-gray-800/30 backdrop-blur-md border border-gray-700/50 rounded-lg p-6 shadow-lg shadow-cyan-900/10">
+                <h3 className="text-xl font-semibold text-white mb-4">Flagged Location Heatmap</h3>
+                <div className="grid grid-cols-12 md:grid-cols-24 gap-1">
+                  {heatmapData.map((opacity, i) => (
+                    <motion.div 
+                      key={i} 
+                      className="w-full h-4 rounded" 
+                      style={{ backgroundColor: `rgba(239, 68, 68, ${opacity})` }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.005 }}
+                    ></motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          );
+        };
+
+        // --- MODAL & ALERT COMPONENTS ---
+
+        /**
+         * TransactionDetail Modal
+         */
+        const TransactionModal = ({ transaction, onClose }) => {
+          if (!transaction) return null;
+
+          const riskColorClass = getRiskColor(transaction.riskScore, 'text');
+
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+              onClick={onClose}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className="w-full max-w-2xl bg-gradient-to-br from-[#0a192f] to-[#202864] border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-900/30 overflow-hidden"
+                onClick={(e) => e.stopPropagation()} // Prevent closing on modal click
+              >
+                {/* Header */}
+                <div className={`flex justify-between items-center p-5 border-b ${getRiskColor(transaction.riskScore, 'border')}/50`}>
+                  <h2 className="text-2xl font-semibold text-white">Transaction Details</h2>
+                  <motion.button 
+                    onClick={onClose} 
+                    className="text-gray-400 hover:text-white"
+                    whileHover={{ scale: 1.2, rotate: 90 }}
+                  >
+                    <X className="w-6 h-6" />
+                  </motion.button>
+                </div>
+                
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Panel: Details */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-cyan-400">Transaction Info</h3>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">User:</span>
+                      <span className="text-white font-medium">{transaction.user}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Amount:</span>
+                      <span className={`text-xl font-bold ${riskColorClass}`}>{formatCurrency(transaction.amount)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Merchant:</span>
+                      <span className="text-white font-medium">{transaction.merchant}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Location:</span>
+                      <span className="text-white font-medium">{transaction.location}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Device:</span>
+                      <span className="text-white font-medium">{transaction.device}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Date:</span>
+                      <span className="text-white font-medium">{transaction.timestamp.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Transaction ID:</span>
+                      <span className="text-gray-500 text-xs font-mono">{transaction.id}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Right Panel: AI Insight */}
+                  <div className="bg-gray-900/30 border border-gray-700/50 rounded-lg p-5">
+                    <h3 className="text-lg font-semibold text-cyan-400 mb-4">AI Decision Insight</h3>
+                    <div className="text-center mb-4">
+                      <span className={`text-2xl font-bold ${riskColorClass}`}>{transaction.status}</span>
+                      <p className="text-sm text-gray-400">Risk Score: {(transaction.riskScore * 100).toFixed(0)} / 100</p>
+                    </div>
+                    
+                    <h4 className="text-sm font-semibold text-gray-300 mb-2">Top Contributing Factors (SHAP Mock)</h4>
+                    <div className="space-y-3">
+                      {transaction.explanation.map((factor, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>{factor.feature}</span>
+                            <span>{(factor.importance * 100).toFixed(0)}%</span>
+                          </div>
+                          <div className="w-full bg-gray-700 rounded-full h-2">
+                            <motion.div 
+                              className="bg-red-500 h-2 rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${factor.importance * 100}%` }}
+                              transition={{ duration: 0.5, delay: i * 0.1 }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <p className="mt-4 text-xs italic text-gray-500">
+                      "AI Insight: Flagged due to unusual device/location/velocity."
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="p-5 bg-gray-900/30 border-t border-gray-700/50 flex justify-end space-x-3">
+                  <motion.button
+                    className="py-2 px-4 rounded-lg bg-green-500/20 text-green-300 border border-green-500/50 hover:bg-green-500/30"
+                    whileHover={{ scale: 1.05 }}
+                    onClick={onClose}
+                  >
+                    Mark as Safe
+                  </motion.button>
+                  <motion.button
+                    className="py-2 px-4 rounded-lg bg-red-500/20 text-red-300 border border-red-500/50 hover:bg-red-500/30"
+                    whileHover={{ scale: 1.05 }}
+                    onClick={onClose}
+                  >
+                    Mark as Fraud
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        };
+
+        /**
+         * AlertBanner Component
+         * Slides in from the side for high-risk alerts.
+         */
+        const AlertBanner = ({ alert, onDismiss }) => {
+          useEffect(() => {
+            const timer = setTimeout(() => {
+              onDismiss(alert.id);
+            }, 5000); // Auto-dismiss after 5 seconds
+
+            return () => clearTimeout(timer);
+          }, [alert, onDismiss]);
+
+          return (
+            <motion.div
+              layout
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 100, transition: { duration: 0.3 } }}
+              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+              className="fixed top-24 right-6 z-50 w-full max-w-sm bg-gradient-to-r from-red-600 to-red-800 border-2 border-red-400 rounded-lg shadow-2xl shadow-red-500/30 text-white overflow-hidden"
+            >
+              <div className="p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 pt-0.5">
+                    <AlertTriangle className="w-6 h-6 text-white animate-pulse" />
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-sm font-semibold">High-Risk Fraud Detected!</p>
+                    <p className="mt-1 text-sm">
+                      {formatCurrency(alert.amount)} transaction by {alert.user} at {alert.merchant}.
+                    </p>
+                  </div>
+                  <div className="ml-4 flex-shrink-0">
+                    <button onClick={() => onDismiss(alert.id)} className="inline-flex text-white/70 hover:text-white">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {/* Animated progress bar for auto-dismiss */}
+              <motion.div 
+                className="h-1 bg-white/50"
+                initial={{ width: '100%' }}
+                animate={{ width: '0%' }}
+                transition={{ duration: 5, ease: 'linear' }}
+              />
+            </motion.div>
+          );
+        };
+
+        /**
+         * AuthModal Component
+         * Simulates Login/Sign-up.
+         */
+        const AuthModal = ({ onClose }) => {
+          const [isLogin, setIsLogin] = useState(true);
+          const [isProcessing, setIsProcessing] = useState(false);
+          
+          const handleBiometric = () => {
+            setIsProcessing(true);
+            setTimeout(() => {
+              setIsProcessing(false);
+              onClose(); // Simulate successful login
+            }, 2500);
+          };
+          
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+              onClick={onClose}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className="w-full max-w-md bg-gradient-to-br from-[#0a192f] to-[#202864] border border-cyan-500/30 rounded-lg shadow-2xl shadow-cyan-900/30"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-center pt-6">
+                  <ShieldCheck className="w-16 h-16 text-cyan-400" />
+                </div>
+                <h2 className="text-3xl font-bold text-center text-white mt-4">Welcome to Auraguard</h2>
+                
+                <div className="flex border-b border-gray-700/50 mt-6">
+                  <button 
+                    className={`flex-1 py-3 text-center font-medium ${isLogin ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-500'}`}
+                    onClick={() => setIsLogin(true)}
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    className={`flex-1 py-3 text-center font-medium ${!isLogin ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-500'}`}
+                    onClick={() => setIsLogin(false)}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+
+                <div className="p-8 space-y-4">
+                  {!isLogin && (
+                    <input 
+                      type="text"
+                      placeholder="Full Name"
+                      className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  )}
+                  <input 
+                    type="email"
+                    placeholder="Email Address"
+                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                  <input 
+                    type="password"
+                    placeholder="Password"
+                    className="w-full bg-gray-900/50 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                  
+                  <motion.button 
+                    className="w-full text-center py-3 px-5 rounded-lg bg-cyan-500 text-white font-semibold shadow-lg shadow-cyan-500/30"
+                    whileHover={{ scale: 1.03, shadow: '0 0 20px rgba(6, 182, 212, 0.7)' }}
+                    onClick={onClose}
+                  >
+                    {isLogin ? 'Sign In' : 'Create Account'}
+                  </motion.button>
+                  
+                  <div className="relative flex items-center justify-center py-2">
+                    <div className="w-full h-px bg-gray-700/50"></div>
+                    <span className="absolute px-3 bg-[#0a192f] text-gray-500 text-sm">OR</span>
+                  </div>
+
+                  <motion.button 
+                    className="w-full flex items-center justify-center space-x-3 py-3 px-5 rounded-lg bg-gray-700/50 text-white font-medium border border-gray-600"
+                    whileHover={{ scale: 1.03, backgroundColor: 'rgba(55, 65, 81, 0.7)' }}
+                    onClick={handleBiometric}
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <div className="w-6 h-6 border-2 border-t-cyan-400 border-gray-600 rounded-full animate-spin"></div>
+                    ) : (
+                      <Fingerprint className="w-6 h-6 text-cyan-400" />
+                    )}
+                    <span>{isProcessing ? 'Scanning...' : 'Demo Biometric Login'}</span>
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        };
+
+
+        // --- MAIN APP COMPONENT ---
+
+        const App = () => {
+          const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'transactions', 'analytics'
+          const [transactions, setTransactions] = useState([]);
+          const [alerts, setAlerts] = useState([]);
+          const [selectedTransaction, setSelectedTransaction] = useState(null);
+          const [showAuthModal, setShowAuthModal] = useState(false); // Set to true to test
+          
+          const [stats, setStats] = useState({
+            suspiciousTx: 28,
+            fraudPrevented: 10450.75,
+            activeUsers: 1570,
+            devicesFlagged: 12,
+          });
+
+          // Initial data load
+          useEffect(() => {
+            setTransactions(Array.from({ length: 20 }, generateMockTransaction).sort((a,b) => b.timestamp - a.timestamp));
+            
+            // Simulate login screen on first load
+            setShowAuthModal(true); 
+          }, []);
+
+          // Live simulation effect
+          useEffect(() => {
+            const interval = setInterval(() => {
+              const newTx = generateMockTransaction();
+              
+              // Update transaction list
+              setTransactions(prev => [newTx, ...prev].slice(0, 50)); // Keep list to 50
+              
+              // Update stats
+              if (newTx.flagged) {
+                setStats(prev => ({
+                  ...prev,
+                  suspiciousTx: prev.suspiciousTx + 1,
+                  fraudPrevented: newTx.flagged ? prev.fraudPrevented + newTx.amount : prev.fraudPrevented,
+                }));
+              }
+
+              // Trigger alert
+              if (newTx.riskScore > 0.8) { // High-risk threshold for banner
+                const newAlert = { ...newTx, id: `alert_${Date.now()}` };
+                setAlerts(prev => [newAlert, ...prev].slice(0, 5)); // Max 5 alerts
+              }
+
+            }, 3000); // New transaction every 3 seconds
+
+            return () => clearInterval(interval);
+          }, []);
+          
+          const dismissAlert = (id) => {
+            setAlerts(prev => prev.filter(a => a.id !== id));
+          };
+
+          const navItems = [
+            { name: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, view: 'dashboard' },
+            { name: 'Transactions', icon: <CreditCard className="w-5 h-5" />, view: 'transactions' },
+            { name: 'Analytics', icon: <BarChart3 className="w-5 h-5" />, view: 'analytics' },
+            { name: 'Devices', icon: <Smartphone className="w-5 h-5" />, view: 'devices' },
+            { name: 'Data Explorer', icon: <Database className="w-5 h-5" />, view: 'explorer' },
+          ];
+
+          const renderView = () => {
+            switch (currentView) {
+              case 'dashboard':
+                return <Dashboard 
+                          transactions={transactions.slice(0, 10)} 
+                          onSelectTransaction={setSelectedTransaction}
+                          stats={stats}
+                        />;
+              case 'transactions':
+                return <TransactionsView 
+                          transactions={transactions} 
+                          onSelectTransaction={setSelectedTransaction} 
+                        />;
+              case 'analytics':
+                return <AnalyticsView />;
+              case 'devices':
+              case 'explorer':
+                return (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-10 text-center">
+                    <h2 className="text-3xl text-white font-semibold">Coming Soon</h2>
+                    <p className="text-gray-400 mt-2">The '{currentView}' module is under construction.</p>
+                  </motion.div>
+                );
+              default:
+                return <Dashboard transactions={transactions.slice(0, 10)} onSelectTransaction={setSelectedTransaction} stats={stats} />;
+            }
+          };
+          
+          // This simulates the red screen-edge flash on high alert
+          const highAlert = alerts.length > 0;
+
+          return (
+            <div className={`font-sans bg-gradient-to-br from-[#0a192f] to-[#202864] text-gray-200 min-h-screen relative
+                            transition-all duration-500 ${highAlert ? 'shadow-[inset_0_0_100px_10px_rgba(239,68,68,0.3)]' : ''}`}>
+              
+              {/* --- Header / Nav Bar --- */}
+              <header className="sticky top-0 z-40 w-full bg-[#0a192f]/80 backdrop-blur-lg border-b border-cyan-500/20">
+                <div className="max-w-full mx-auto px-6">
+                  <div className="flex justify-between items-center h-16">
+                    {/* Logo */}
+                    <div className="flex items-center space-x-2">
+                      <ShieldCheck className="w-8 h-8 text-cyan-400" />
+                      <span className="text-2xl font-bold text-white">Auraguard</span>
+                    </div>
+                    
+                    {/* Nav Links (Center) */}
+                    <nav className="hidden md:flex space-x-1">
+                      {navItems.map(item => (
+                        <motion.button
+                          key={item.view}
+                          onClick={() => setCurrentView(item.view)}
+                          className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors
+                                      ${currentView === item.view 
+                                        ? 'bg-cyan-500/10 text-cyan-300' 
+                                        : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {item.icon}
+                          <span>{item.name}</span>
+                        </motion.button>
+                      ))}
+                    </nav>
+                    
+                    {/* User Menu (Right) */}
+                    <div className="flex items-center space-x-4">
+                      <motion.button 
+                        className="relative text-gray-400 hover:text-white"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        <Bell className="w-6 h-6" />
+                        {alerts.length > 0 && (
+                          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                          </span>
+                        )}
+                      </motion.button>
+                      <motion.button 
+                        className="text-gray-400 hover:text-white"
+                        whileHover={{ scale: 1.1 }}
+                        onClick={() => setShowAuthModal(true)}
+                      >
+                        <User className="w-6 h-6" />
+                      </motion.button>
+                    </div>
+                  </div>
+                </div>
+              </header>
+              
+              {/* --- Main Content Area --- */}
+              <main className="max-w-full mx-auto">
+                <AnimatePresence mode="wait">
+                  <Fragment key={currentView}>
+                    {renderView()}
+                  </Fragment>
+                </AnimatePresence>
+              </main>
+              
+              {/* --- Modals & Alerts Layer --- */}
+              <AnimatePresence>
+                {selectedTransaction && (
+                  <TransactionModal 
+                    transaction={selectedTransaction} 
+                    onClose={() => setSelectedTransaction(null)} 
+                  />
+                )}
+              </AnimatePresence>
+              
+              <AnimatePresence>
+                {showAuthModal && (
+                  <AuthModal onClose={() => setShowAuthModal(false)} />
+                )}
+              </AnimatePresence>
+              
+              <div className="fixed top-0 right-0 z-50 p-6 space-y-3">
+                <AnimatePresence>
+                  {alerts.map(alert => (
+                    <AlertBanner key={alert.id} alert={alert} onDismiss={dismissAlert} />
+                  ))}
+                </AnimatePresence>
+              </div>
+
+            </div>
+          );
+        };
+
+        // --- Mount the App ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+    
+</body>
+</html>
